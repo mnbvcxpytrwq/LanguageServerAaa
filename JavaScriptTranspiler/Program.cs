@@ -1,13 +1,11 @@
-﻿/*
+﻿
 // In terminal I can run:
 // dotnet "C:\Users\hunte\Repos\New folder (7)\LanguageServer2\JavaScriptTranspiler\bin\Release\net10.0\publish\JavaScriptTranspiler.dll"
 
 
 // Ensure an argument was actually passed to avoid an IndexOutOfRangeException
+using JavaScriptTranspiler;
 using JSLSApp;
-using System.Reflection.Metadata;
-using System.Runtime.InteropServices;
-using static System.Net.Mime.MediaTypeNames;
 
 if (args.Length != 2)
 {
@@ -17,102 +15,35 @@ if (args.Length != 2)
 
 
 // Capture the very first argument
-string sourceFolderPath = args[0];
-string outputFolderPath = args[1];
-if (!Path.Exists(sourceFolderPath))
+string sourceFilePath = args[0];
+string outputFilePath = args[1];
+if (!Path.Exists(sourceFilePath))
 {
-    Console.WriteLine($"The source path {sourceFolderPath} does not exist.");
+    Console.WriteLine($"The source path {sourceFilePath} does not exist.");
     return;
 }
-if (!Path.Exists(outputFolderPath))
+if (!Path.Exists(outputFilePath))
 {
-    Console.WriteLine($"The output path {outputFolderPath} does not exist.");
+    Console.WriteLine($"The output path {outputFilePath} does not exist.");
     return;
 }
 
-// 1. Define your hardcoded array of files (adjust filenames to match your exact project structure)
-string[] prioritizedFilenames = [
-    //"fieldBuffer.js",
-    //"header_editorGlobal_header.js",
-    "widgetGlobal.js",
-    //"menuGlobal.js",
-    //"dialogGlobal.js",
-    //"trackedSyntaxTypes.js",
-    //"treeViewComponent.js",
-    //"dialogImplementationsGlobal.js",
-    //"listComponent.js",
-    //"listTypes.js",
-    //"editorMaxHeap.js",
-    //"editorGlobal.js",
-    //"javascriptFeatures.js",
-    //"explorerGlobal.js",
-    //"applicationRendererRoot.js"
-];
+var sourceFile = new FileInfo(sourceFilePath);
+var outputFile = new FileInfo(outputFilePath);
 
+/// TODO: This is a terrible idea, but the first step is to reproduce the text exactly as is and the way I get that accomplish is gonna get swapped out in the end.
+var outputFileText = new List<string>();
 
-var sourceDirectory = new DirectoryInfo(sourceFolderPath);
-var outputDirectory = new DirectoryInfo(outputFolderPath);
+OutputFileState outputFileState;
 
-// Define your combined output file name inside the output directory
-string combinedOutputPath = Path.Combine(outputFolderPath, "combined_output.js");
 
 try
 {
-    // 2. Scan the directory once and map files by their Name (case-insensitive) for fast lookups
-    var allJsFiles = sourceDirectory.EnumerateFiles("*.js")
-        .ToDictionary(f => f.Name, f => f, StringComparer.OrdinalIgnoreCase);
-
-    // Track which files have been processed to avoid duplicates
-    var processedFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-    // 3. Build the final ordered execution queue
-    var executionQueue = new List<JavaScriptDocument>();
-
-    using var outputStream = new FileStream(combinedOutputPath, FileMode.Create, FileAccess.Write);
-    using var writer = new StreamWriter(outputStream);
-
-    // Step A: Enqueue the prioritized files in their exact array order
-    foreach (var name in prioritizedFilenames)
-    {
-        if (allJsFiles.TryGetValue(name, out var file))
-        {
-            Console.WriteLine($"Appending: {name}");
-
-            writer.WriteLine();
-            writer.WriteLine($"// File: {name}");
-            writer.WriteLine();
-
-            var javascriptFormatter = new JavaScriptFormatter(File.ReadAllText(file.FullName).AsSpan(), outputStream, writer);
-            javascriptFormatter.Parse();
-
-            writer.Flush(); // Flush out headers to sync text and byte streams
-
-            //using var inputStream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read);
-            //inputStream.CopyTo(outputStream);
-        }
-    }
-
-    // Step B: Enqueue all remaining files, sorted alphabetically by filename
-    //var remainingSortedFiles = allJsFiles.Keys
-    //    .Where(name => !processedFiles.Contains(name))
-    //    .OrderBy(name => name, StringComparer.OrdinalIgnoreCase);
-    //
-    //foreach (var name in remainingSortedFiles)
-    //{
-    //    executionQueue.Add(allJsFiles[name]);
-    //}
-
-    
-
-    
-
-    // 4. Stream and concatenate the files sequentially
-    foreach (var document in executionQueue)
-    {
-        
-    }
-
-    Console.WriteLine($"Successfully concatenated all files into: {combinedOutputPath}");
+    var javaScriptDocument = UtilityFunctions.ReadIntoJavaScriptDocument(sourceFile.FullName);
+    outputFileState = new OutputFileState(new byte[javaScriptDocument.Capacity], javaScriptDocument.Capacity, 0);
+    var javaScriptTranspilerClass = new JavaScriptTranspilerClass(javaScriptDocument, outputFileState);
+    javaScriptTranspilerClass.Parse();
+    File.WriteAllBytes(outputFile.FullName, new ReadOnlySpan<byte>(outputFileState.Bytes, 0, outputFileState.Count));
 }
 catch (Exception ex)
 {
@@ -122,4 +53,4 @@ catch (Exception ex)
 
 
 
-*/
+

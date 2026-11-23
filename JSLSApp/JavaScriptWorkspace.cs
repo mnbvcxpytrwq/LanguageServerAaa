@@ -59,7 +59,7 @@ public class JavaScriptWorkspace
 
     public void DidOpenTextDocumentNotification(string sourceFileAbsolutePath, byte[] buffer, int capacity, int length, bool hadBomMark, byte lineEndingKind)
     {
-        var localPath = new Uri(sourceFileAbsolutePath).LocalPath;
+        var localPath = new Uri(sourceFileAbsolutePath).LocalPath; // TODO: var localPath??? You had this in a function and then removed the function but some places have what was in the function.
         OpenedSourceFileAbsolutePathToInMemoryContentMap.Add(sourceFileAbsolutePath, new JavaScriptDocument(localPath, buffer, capacity, length, hadBomMark, lineEndingKind));
     }
     

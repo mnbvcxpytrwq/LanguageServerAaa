@@ -3,7 +3,7 @@ using JSLSApp.Syntax;
 
 namespace JSLSApp;
 
-internal struct ScopeUndoEntry
+public struct ScopeUndoEntry
 {
     public int IdentifierHash;
     public bool ExistedBefore;
