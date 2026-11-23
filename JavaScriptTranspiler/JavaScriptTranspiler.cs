@@ -959,8 +959,6 @@ public class JavaScriptTranspilerClass
         while (_pos < _doc.Count)
         {
             byte b = _doc.Chars[_pos];
-            _outputFileState.Bytes[_outputFileState.Count] = b;
-            _outputFileState.Count++;
             bool isValidIdentifierChar = b is >= (byte)'0' and <= (byte)'9'
                                            or >= (byte)'A' and <= (byte)'Z'
                                            or >= (byte)'a' and <= (byte)'z'
@@ -970,6 +968,9 @@ public class JavaScriptTranspilerClass
                 length++;
                 // Standard DJB2 hash formula: hash * 33 + c
                 charIntSum = ((charIntSum << 5) - charIntSum) + _doc.Chars[_pos];
+
+                _outputFileState.Bytes[_outputFileState.Count] = b;
+                _outputFileState.Count++;
 
                 _pos++;
                 _indexChar++;
