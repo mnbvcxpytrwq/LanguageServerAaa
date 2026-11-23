@@ -949,8 +949,7 @@ public class JavaScriptTranspilerClass
         
         // TODO: if you just let it enter the loop you'd get rid of this specific line of duplicated hash logic
         charIntSum = ((charIntSum << 5) - charIntSum) + _doc.Chars[_pos];
-        _outputFileState.Bytes[_outputFileState.Count] = _doc.Chars[_pos];
-        _outputFileState.Count++;
+        _outputFileState.Add(_doc.Chars[_pos]);
 
         var length = 1;
         _pos++;
@@ -969,8 +968,7 @@ public class JavaScriptTranspilerClass
                 // Standard DJB2 hash formula: hash * 33 + c
                 charIntSum = ((charIntSum << 5) - charIntSum) + _doc.Chars[_pos];
 
-                _outputFileState.Bytes[_outputFileState.Count] = b;
-                _outputFileState.Count++;
+                _outputFileState.Add(b);
 
                 _pos++;
                 _indexChar++;
