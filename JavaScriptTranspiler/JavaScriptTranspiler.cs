@@ -11,7 +11,8 @@ public class JavaScriptTranspilerClass
 {
     private JavaScriptDocument _doc;
     private OutputFileState _outputFileState;
-    private int _pos = 0;
+    private int _pos;
+
     private int _posOfPreviousNode = 0;
     private int _indexLine = 0;
     private int _indexChar = 0;
@@ -757,180 +758,180 @@ public class JavaScriptTranspilerClass
                     return Lex_String('`');
                 case 40: // '('
                     {
-                        _pos++;
+                        IncPos();
                         var startPosition = new Position(_indexLine, _indexChar);
                         _indexChar++;
                         return new SyntaxToken(SyntaxKind.OpenParenthesisToken, startPosition, 1);
                     }
                 case 41: // ')'
                     {
-                        _pos++;
+                        IncPos();
                         var startPosition = new Position(_indexLine, _indexChar);
                         _indexChar++;
                         return new SyntaxToken(SyntaxKind.CloseParenthesisToken, startPosition, 1);
                     }
                 case 123: // '{'
                     {
-                        _pos++;
+                        IncPos();
                         var startPosition = new Position(_indexLine, _indexChar);
                         _indexChar++;
                         return new SyntaxToken(SyntaxKind.OpenBraceToken, startPosition, 1);
                     }
                 case 125: // '}'
                     {
-                        _pos++;
+                        IncPos();
                         var startPosition = new Position(_indexLine, _indexChar);
                         _indexChar++;
                         return new SyntaxToken(SyntaxKind.CloseBraceToken, startPosition, 1);
                     }
                 case 91: // '['
                     {
-                        _pos++;
+                        IncPos();
                         var startPosition = new Position(_indexLine, _indexChar);
                         _indexChar++;
                         return new SyntaxToken(SyntaxKind.OpenSquareToken, startPosition, 1);
                     }
                 case 93: // ']'
                     {
-                        _pos++;
+                        IncPos();
                         var startPosition = new Position(_indexLine, _indexChar);
                         _indexChar++;
                         return new SyntaxToken(SyntaxKind.CloseSquareToken, startPosition, 1);
                     }
                 case 61: // '='
                     {
-                        _pos++;
+                        IncPos();
                         var startPosition = new Position(_indexLine, _indexChar);
                         _indexChar++;
                         return new SyntaxToken(SyntaxKind.EqualsToken, startPosition, 1);
                     }
                 case 44: // ','
                     {
-                        _pos++;
+                        IncPos();
                         var startPosition = new Position(_indexLine, _indexChar);
                         _indexChar++;
                         return new SyntaxToken(SyntaxKind.CommaToken, startPosition, 1);
                     }
                 case 59: // ';'
                     {
-                        _pos++;
+                        IncPos();
                         var startPosition = new Position(_indexLine, _indexChar);
                         _indexChar++;
                         return new SyntaxToken(SyntaxKind.SemicolonToken, startPosition, 1);
                     }
                 case 60: // '<'
                     {
-                        _pos++;
+                        IncPos();
                         var startPosition = new Position(_indexLine, _indexChar);
                         _indexChar++;
                         return new SyntaxToken(SyntaxKind.OpenAngleToken, startPosition, 1);
                     }
                 case 62: // '>'
                     {
-                        _pos++;
+                        IncPos();
                         var startPosition = new Position(_indexLine, _indexChar);
                         _indexChar++;
                         return new SyntaxToken(SyntaxKind.CloseAngleToken, startPosition, 1);
                     }
                 case 38: // '&'
                     {
-                        _pos++;
+                        IncPos();
                         var startPosition = new Position(_indexLine, _indexChar);
                         _indexChar++;
                         return new SyntaxToken(SyntaxKind.AmpersandToken, startPosition, 1);
                     }
                 case 46: // '.'
                     {
-                        _pos++;
+                        IncPos();
                         var startPosition = new Position(_indexLine, _indexChar);
                         _indexChar++;
                         return new SyntaxToken(SyntaxKind.PeriodToken, startPosition, 1);
                     }
                 case 124: // '|'
                     {
-                        _pos++;
+                        IncPos();
                         var startPosition = new Position(_indexLine, _indexChar);
                         _indexChar++;
                         return new SyntaxToken(SyntaxKind.PipeToken, startPosition, 1);
                     }
                 case 58: // ':'
                     {
-                        _pos++;
+                        IncPos();
                         var startPosition = new Position(_indexLine, _indexChar);
                         _indexChar++;
                         return new SyntaxToken(SyntaxKind.ColonToken, startPosition, 1);
                     }
                 case 43: // '+'
                     {
-                        _pos++;
+                        IncPos();
                         var startPosition = new Position(_indexLine, _indexChar);
                         _indexChar++;
                         return new SyntaxToken(SyntaxKind.PlusToken, startPosition, 1);
                     }
                 case 45: // '-'
                     {
-                        _pos++;
+                        IncPos();
                         var startPosition = new Position(_indexLine, _indexChar);
                         _indexChar++;
                         return new SyntaxToken(SyntaxKind.MinusToken, startPosition, 1);
                     }
                 case 42: // '*'
                     {
-                        _pos++;
+                        IncPos();
                         var startPosition = new Position(_indexLine, _indexChar);
                         _indexChar++;
                         return new SyntaxToken(SyntaxKind.StarToken, startPosition, 1);
                     }
                 case 94: // '^'
                     {
-                        _pos++;
+                        IncPos();
                         var startPosition = new Position(_indexLine, _indexChar);
                         _indexChar++;
                         return new SyntaxToken(SyntaxKind.CaretToken, startPosition, 1);
                     }
                 case 37: // '%'
                     {
-                        _pos++;
+                        IncPos();
                         var startPosition = new Position(_indexLine, _indexChar);
                         _indexChar++;
                         return new SyntaxToken(SyntaxKind.PercentToken, startPosition, 1);
                     }
                 case 36: // '$'
                     {
-                        _pos++;
+                        IncPos();
                         var startPosition = new Position(_indexLine, _indexChar);
                         _indexChar++;
                         return new SyntaxToken(SyntaxKind.DollarSignToken, startPosition, 1);
                     }
                 case 35: // '#'
                     {
-                        _pos++;
+                        IncPos();
                         var startPosition = new Position(_indexLine, _indexChar);
                         _indexChar++;
                         return new SyntaxToken(SyntaxKind.PoundToken, startPosition, 1);
                     }
                 case 64: // '@'
                     {
-                        _pos++;
+                        IncPos();
                         var startPosition = new Position(_indexLine, _indexChar);
                         _indexChar++;
                         return new SyntaxToken(SyntaxKind.AtToken, startPosition, 1);
                     }
                 case 33: // '!'
                     {
-                        _pos++;
+                        IncPos();
                         var startPosition = new Position(_indexLine, _indexChar);
                         _indexChar++;
                         return new SyntaxToken(SyntaxKind.BangToken, startPosition, 1);
                     }
                 default:
                     // TODO: multibyte characters
-                    _pos++;
+                    IncPos();
                     _indexChar++;
                     break;
             }
 
-            _pos++;
+            IncPos();
         }
 
         return new SyntaxToken(SyntaxKind.EndOfFileToken, new Position(_indexLine, _indexChar), 0);
@@ -949,10 +950,10 @@ public class JavaScriptTranspilerClass
         
         // TODO: if you just let it enter the loop you'd get rid of this specific line of duplicated hash logic
         charIntSum = ((charIntSum << 5) - charIntSum) + _doc.Chars[_pos];
-        _outputFileState.Add(_doc.Chars[_pos]);
+        //_outputFileState.Add(_doc.Chars[_pos]);
 
         var length = 1;
-        _pos++;
+        IncPos();
         _indexChar++;
 
         while (_pos < _doc.Count)
@@ -968,9 +969,9 @@ public class JavaScriptTranspilerClass
                 // Standard DJB2 hash formula: hash * 33 + c
                 charIntSum = ((charIntSum << 5) - charIntSum) + _doc.Chars[_pos];
 
-                _outputFileState.Add(b);
+                //_outputFileState.Add(b);
 
-                _pos++;
+                IncPos();
                 _indexChar++;
             }
             else
@@ -1417,7 +1418,7 @@ public class JavaScriptTranspilerClass
     {
         var startPosition = new Position(_indexLine, _indexChar);
         var length = 1;
-        _pos++;
+        IncPos();
         _indexChar++;
 
         while (_pos < _doc.Count)
@@ -1439,7 +1440,7 @@ public class JavaScriptTranspilerClass
                 }
             }
 
-            _pos++;
+            IncPos();
             _indexChar++;
         }
 
@@ -1459,7 +1460,7 @@ public class JavaScriptTranspilerClass
                 {
                     if (_doc.Chars[_pos + 1] == 10 /* \n */)
                     {
-                        _pos++;
+                        IncPos();
                     }
                 }
                 break;
@@ -1471,7 +1472,7 @@ public class JavaScriptTranspilerClass
                 _indexChar++;
                 break;
         }
-        _pos++;
+        IncPos();
 
 
         while (_pos < _doc.Count)
@@ -1496,7 +1497,7 @@ public class JavaScriptTranspilerClass
                     {
                         if (_doc.Chars[_pos + 1] == 10 /* \n */)
                         {
-                            _pos++;
+                            IncPos();
                         }
                     }
                     break;
@@ -1508,7 +1509,7 @@ public class JavaScriptTranspilerClass
                     _indexChar++;
                     break;
             }
-            _pos++;
+            IncPos();
         }
 
         return new SyntaxToken(SyntaxKind.WhitespaceToken, startPosition, length);
@@ -1520,7 +1521,7 @@ public class JavaScriptTranspilerClass
 
         var startPosition = new Position(_indexLine, _indexChar);
         var length = 1;
-        _pos++;
+        IncPos();
         _indexChar++;
 
         while (_pos < _doc.Count)
@@ -1529,7 +1530,7 @@ public class JavaScriptTranspilerClass
             {
                 case 13 /* \r */:
                     length++;
-                    _pos++;
+                    IncPos();
                     _indexLine++;
                     _indexChar = 0;
                     if (_pos <= _doc.Count - 1)
@@ -1539,7 +1540,7 @@ public class JavaScriptTranspilerClass
                             // I'm going to have everything length wise as though '\r\n' are just '\n'.
                             // Maybe is best to make start and end positions I'm not sure.
                             // Either way my goal right now is to get the 'function' "keyword" appearing in text to not result in lsp saying a function definition exists there.
-                            _pos++;
+                            IncPos();
                         }
                     }
                     if (terminator == '`')
@@ -1553,7 +1554,7 @@ public class JavaScriptTranspilerClass
                     }
                 case 10 /* \n */:
                     length++;
-                    _pos++;
+                    IncPos();
                     _indexLine++;
                     _indexChar = 0;
                     if (terminator == '`')
@@ -1567,12 +1568,12 @@ public class JavaScriptTranspilerClass
                     }
                 case 92: // '\'
                     length++;
-                    _pos++;
+                    IncPos();
                     _indexChar++;
                     if (_pos <= _doc.Count - 1)
                     {
                         length++;
-                        _pos++;
+                        IncPos();
                         _indexChar++;
                     }
                     break;
@@ -1580,12 +1581,12 @@ public class JavaScriptTranspilerClass
                     if (_doc.Chars[_pos] == terminator)
                     {
                         length++;
-                        _pos++;
+                        IncPos();
                         _indexChar++;
                         goto functionEnding;
                     }
                     length++;
-                    _pos++;
+                    IncPos();
                     _indexChar++;
                     break;
             }
@@ -1600,7 +1601,9 @@ public class JavaScriptTranspilerClass
     {
         var startPosition = new Position(_indexLine, _indexChar);
         var length = 2;
-        _pos += 2;
+        IncPos();
+        IncPos();
+        //_pos += 2;
         _indexChar += 2;
 
         while (_pos < _doc.Count)
@@ -1609,7 +1612,7 @@ public class JavaScriptTranspilerClass
             {
                 case 13 /* \r */:
                     length++;
-                    _pos++;
+                    IncPos();
                     _indexLine++;
                     _indexChar = 0;
                     if (_pos <= _doc.Count - 1)
@@ -1619,19 +1622,19 @@ public class JavaScriptTranspilerClass
                             // I'm going to have everything length wise as though '\r\n' are just '\n'.
                             // Maybe is best to make start and end positions I'm not sure.
                             // Either way my goal right now is to get the 'function' "keyword" appearing in text to not result in lsp saying a function definition exists there.
-                            _pos++;
+                            IncPos();
                         }
                     }
                     goto functionEnding;
                 case 10 /* \n */:
                     length++;
-                    _pos++;
+                    IncPos();
                     _indexLine++;
                     _indexChar = 0;
                     goto functionEnding;
                 default:
                     length++;
-                    _pos++;
+                    IncPos();
                     _indexChar++;
                     break;
             }
@@ -1651,7 +1654,9 @@ public class JavaScriptTranspilerClass
 
         var startPosition = new Position(_indexLine, _indexChar);
         var length = 2;
-        _pos += 2;
+        IncPos();
+        IncPos();
+        //_pos += 2;
         _indexChar += 2;
 
         while (_pos < _doc.Count)
@@ -1660,13 +1665,13 @@ public class JavaScriptTranspilerClass
             {
                 case 42: // '*'
                     length++;
-                    _pos++;
+                    IncPos();
                     _indexChar++;
                     if (_pos <= _doc.Count - 1 &&
                         _doc.Chars[_pos] == 47 /* '/' */)
                     {
                         length++;
-                        _pos++;
+                        IncPos();
                         _indexChar++;
                         goto functionEnding;
                     }
@@ -1674,7 +1679,7 @@ public class JavaScriptTranspilerClass
                 case 13: // '\r'
                     _seenLineEnd_flagForStringsAndComments = true;
                     length++;
-                    _pos++;
+                    IncPos();
                     _indexLine++;
                     _indexChar = 0;
                     if (_pos <= _doc.Count - 1)
@@ -1684,20 +1689,20 @@ public class JavaScriptTranspilerClass
                             // I'm going to have everything length wise as though '\r\n' are just '\n'.
                             // Maybe is best to make start and end positions I'm not sure.
                             // Either way my goal right now is to get the 'function' "keyword" appearing in text to not result in lsp saying a function definition exists there.
-                            _pos++;
+                            IncPos();
                         }
                     }
                     break;
                 case 10 /* \n */:
                     _seenLineEnd_flagForStringsAndComments = true;
                     length++;
-                    _pos++;
+                    IncPos();
                     _indexLine++;
                     _indexChar = 0;
                     break;
                 default:
                     length++;
-                    _pos++;
+                    IncPos();
                     _indexChar++;
                     break;
             }
@@ -1706,6 +1711,12 @@ public class JavaScriptTranspilerClass
         functionEnding:
         //SyntaxHighlightByteList.SetSyntaxHighlighting(_pos - length, length, TrackedSyntaxKind.Comment);
         return new SyntaxToken(SyntaxKind.MultiLineCommentToken, startPosition, length, _pos - length);
+    }
+
+    private void IncPos()
+    {
+        _outputFileState.Add(_doc.Chars[_pos]);
+        _pos++;
     }
 }
 
