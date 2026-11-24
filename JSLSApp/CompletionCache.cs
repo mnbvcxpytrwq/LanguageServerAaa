@@ -13,7 +13,7 @@ public class CompletionCache
     public SyntaxNode _currentScopeProvider = null!;
     public ref Scope _currentScope => ref _currentScopeProvider.GetScope();
     public GlobalNode _globalNode = null!;
-    public Dictionary<int, SyntaxNode> _lexicalScope = null!;
+    public Dictionary<int, SyntaxNode> _lexicalScope = new();
 
     public void OpenScope(SyntaxNode scopeProviderNode)
     {
@@ -90,6 +90,8 @@ public class CompletionCache
         ref var scope = ref args.ScopeProvider.GetScope();
         var i = 0;
 
+        //bool flagFinalization = false;
+
         while (true)
         {
             bool descended = false;
@@ -114,7 +116,14 @@ public class CompletionCache
                 }
                 else if (args.TargetIndexPosition < args.CurrentIndexPosition)
                 {
-                    return;
+                    if (i >= scope.BodyList.Count)
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        continue;
+                    }
                 }
                 else if (args.TargetIndexPosition > args.CurrentIndexPosition)
                 {
@@ -135,6 +144,7 @@ public class CompletionCache
             {
                 if (args.ReturnStack.Count > 0)
                 {
+                    CloseScope();
                     var parentContext = args.ReturnStack.Pop();
                     args.ScopeProvider = parentContext.ScopeProvider;
                     scope = ref args.ScopeProvider.GetScope();

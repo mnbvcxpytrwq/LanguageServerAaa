@@ -182,6 +182,7 @@ public class Program
             {
                 Lsp.DeserializeContent_DidOpen(str);
                 var base64String = Lsp.DeserializeContent_CustomFullFileLexRequest(str);
+                // System.ArgumentNullException: 'Value cannot be null. (Parameter 'data')' (presumably this is due to base64String being string.empty?) I'm looking at the debugger right now it says "" is the value of 'base64String'.
                 server.SendAsync(clientGuid, base64String);
             }
             else if (current_message_kind == MessageKind_textDocument_definition)
@@ -223,7 +224,7 @@ public class Program
             }
             else if (current_message_kind == MessageKind_custom_autocomplete)
             {
-                //var completionCache = Lsp.DeserializeContent_Completion(0);
+                var completionCache = Lsp.DeserializeContent_Completion(0);
                 //server.SendAsync(clientGuid, JsonSerializer.Serialize(completionCache.Nodes));
             }
 

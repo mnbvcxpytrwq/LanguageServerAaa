@@ -633,6 +633,8 @@ internal static class Lsp
         }
 
         CompletionCache completionCache = new();
+        var args = new RecursiveSearch_Args(javaScriptDocument, positionIndex, _inclusiveFinalNodeToConsiderAtEachDepth, _returnStack);
+        completionCache.RecursiveSearch(ref args);
 
         return completionCache;
     }
