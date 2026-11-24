@@ -640,7 +640,7 @@ internal static class Lsp
 
         foreach (var nodeKvp in completionCache._lexicalScope)
         {
-            nodes.Add(nodeKvp.Key.ToString());
+            nodes.Add(SyntaxHelper.GetIdentifierText(nodeKvp.Value, args.Chars));
         }
 
         return nodes;

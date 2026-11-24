@@ -1,19 +1,23 @@
-﻿using JSLSApp.LspTypes;
-using JSLSApp.Syntax;
-using System.Data.Common;
-using System.Xml.Linq;
+﻿using JSLSApp.Syntax;
 
 namespace JSLSApp;
+
+public struct ScopeUndoEntryWithPosition
+{
+    public int IdentifierHash;
+    public bool ExistedBefore;
+    public SyntaxNodeWithPosition PreviousNode; // Null if ExistedBefore is false
+}
 
 public class CompletionCache
 {
     // The Undo Stack. It tracks what needs to be restored when a scope exits.
     // We store a list of actions (or previous states) for each scope level.
-    public readonly Stack<List<ScopeUndoEntry>> _undoStack = new();
+    public readonly Stack<List<ScopeUndoEntryWithPosition>> _undoStack = new();
     public SyntaxNode _currentScopeProvider = null!;
     public ref Scope _currentScope => ref _currentScopeProvider.GetScope();
     public GlobalNode _globalNode = null!;
-    public Dictionary<int, SyntaxNode> _lexicalScope = new();
+    public Dictionary<int, SyntaxNodeWithPosition> _lexicalScope = new();
 
     public void OpenScope(SyntaxNode scopeProviderNode)
     {
@@ -26,7 +30,7 @@ public class CompletionCache
         // ...and I intend to keep the scope objects around so this is good.
         if (scopeProviderNode != _globalNode)
         {
-            _undoStack.Push(new List<ScopeUndoEntry>());
+            _undoStack.Push(new List<ScopeUndoEntryWithPosition>());
         }
     }
 
@@ -59,10 +63,10 @@ public class CompletionCache
         }
     }
 
-    public void DeclareVariable(int identifierHash, SyntaxNode node)
+    public void DeclareVariable(int identifierHash, SyntaxNodeWithPosition node)
     {
         // 1. Record the current state before we overwrite/shadow anything
-        var entry = new ScopeUndoEntry { IdentifierHash = identifierHash };
+        var entry = new ScopeUndoEntryWithPosition { IdentifierHash = identifierHash };
 
         if (_lexicalScope.TryGetValue(identifierHash, out var oldNode))
         {
@@ -99,15 +103,17 @@ public class CompletionCache
             for (; i < scope.BodyList.Count; i++)
             {
                 SyntaxNode? child_node = scope.BodyList[i];
+
+                args.CurrentIndexPosition += child_node.DistanceFromPreviousNode;
+                
                 switch (child_node.SyntaxKind)
                 {
                     case SyntaxKind.ClassDeclarationNode:
                     case SyntaxKind.VariableDeclarationNode:
                     case SyntaxKind.FunctionDeclarationNode:
-                        DeclareVariable(child_node.GetIdentifierHash(), child_node);
+                        DeclareVariable(child_node.GetIdentifierHash(), new SyntaxNodeWithPosition(child_node, args.CurrentIndexPosition));
                         break;
                 }
-                args.CurrentIndexPosition += child_node.DistanceFromPreviousNode;
 
                 if (args.TargetIndexPosition >= args.CurrentIndexPosition && args.TargetIndexPosition <= args.CurrentIndexPosition + child_node.Length)
                 {
