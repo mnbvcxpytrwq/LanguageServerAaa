@@ -223,8 +223,8 @@ public class Program
             }
             else if (current_message_kind == MessageKind_custom_autocomplete)
             {
-                var completionCache = Lsp.DeserializeContent_Completion();
-                server.SendAsync(clientGuid, JsonSerializer.Serialize(completionCache.Nodes));
+                //var completionCache = Lsp.DeserializeContent_Completion(0);
+                //server.SendAsync(clientGuid, JsonSerializer.Serialize(completionCache.Nodes));
             }
 
             current_message_kind = MessageKind_none;

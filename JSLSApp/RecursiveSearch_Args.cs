@@ -3,7 +3,7 @@ using JSLSApp.Syntax;
 
 namespace JSLSApp;
 
-internal ref struct RecursiveSearch_Args
+public ref struct RecursiveSearch_Args
 {
     public RecursiveSearch_Args(JavaScriptDocument javaScriptDocument,
         int targetIndexPosition,

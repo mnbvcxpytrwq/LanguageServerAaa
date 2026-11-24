@@ -621,26 +621,7 @@ internal static class Lsp
         return null;
     }
 
-    /// <summary>
-    /// This won't work cause you gotta update this as you move the cursor or something even if you debounce it you still can't update Bytes it doesn't tell you much of anything.
-    /// </summary>
-    public class CompletionCache
-    {
-        public List<SyntaxNode> Nodes { get; set; } = new();
-        //public int AmountOfNodesInTheCache { get; set; }
-        //public byte[] Bytes { get; set; }
-        //public int Count { get; set; }
-        //public int Capacity { get; set; }
-    }
-    
-    //public class CompletionCacheEntry
-    //{
-    //    //public int ByteOffset { get; set; }
-    //    //public int ByteLength { get; set; }
-    //    //public SyntaxNode Node { get; set; }
-    //}
-
-    public static CompletionCache DeserializeContent_Completion()
+    public static CompletionCache DeserializeContent_Completion(int positionIndex)
     {
         if (_javaScriptWorkspace.MostRecentlyOpenedFilePath is null)
             return null;
@@ -652,11 +633,6 @@ internal static class Lsp
         }
 
         CompletionCache completionCache = new();
-
-        foreach (var node in javaScriptDocument.CompilationUnit.GlobalNode.GetScope().BodyList)
-        {
-            completionCache.Nodes.Add(node);
-        }
 
         return completionCache;
     }
