@@ -621,149 +621,44 @@ internal static class Lsp
         return null;
     }
 
-    public static Message DeserializeContent_Completion(TextDocumentCompletionRequest? completionRequest)
+    /// <summary>
+    /// This won't work cause you gotta update this as you move the cursor or something even if you debounce it you still can't update Bytes it doesn't tell you much of anything.
+    /// </summary>
+    public class CompletionCache
     {
-        if (completionRequest is null || completionRequest.@params.textDocument.uri is null)
+        public List<SyntaxNode> Nodes { get; set; } = new();
+        //public int AmountOfNodesInTheCache { get; set; }
+        //public byte[] Bytes { get; set; }
+        //public int Count { get; set; }
+        //public int Capacity { get; set; }
+    }
+    
+    //public class CompletionCacheEntry
+    //{
+    //    //public int ByteOffset { get; set; }
+    //    //public int ByteLength { get; set; }
+    //    //public SyntaxNode Node { get; set; }
+    //}
+
+    public static CompletionCache DeserializeContent_Completion()
+    {
+        if (_javaScriptWorkspace.MostRecentlyOpenedFilePath is null)
             return null;
 
-        var found = _javaScriptWorkspace.OpenedSourceFileAbsolutePathToInMemoryContentMap.TryGetValue(completionRequest.@params.textDocument.uri, out var javaScriptDocument);
+        var found = _javaScriptWorkspace.OpenedSourceFileAbsolutePathToInMemoryContentMap.TryGetValue(_javaScriptWorkspace.MostRecentlyOpenedFilePath, out var javaScriptDocument);
         if (!found || javaScriptDocument is null)
         {
             return null;
         }
 
-        SyntaxNode? result_node = null;
+        CompletionCache completionCache = new();
 
-        var totalChecks = 0;
-        var definitionNodeCount = 0;
-        
-
-        // Step A: Get the closest node to the cursor position that has a scope.
-        //         - This is done by starting at the GlobalScope and then recursively checking each child node in the targetScope's "BodyList".
-        // Step B: Get the closest node to the cursor position that has a scope.
-        //         - This is done by creating a menu option for every definition that exists within the targetNode's "BodyList".
-        //         - Each time you do this, you change the targetNode to be the targetNode.Parent
-        //         - This gets you the entries of the closest scope to start as the 0th menu option and onward they're the first options you can pick.
-        // Caching: If the result of "Step A" is the same node as the previous invocation, just re-use that list of menu options again.
-
-        // Step A: Get the closest node to the cursor position that has a scope.
-        result_node = SyntaxHelper.RecursiveSearch_BodyOnly(javaScriptDocument.CompilationUnit.GlobalNode, completionRequest.@params.position.line, ref totalChecks, ref definitionNodeCount);
-        result_node ??= javaScriptDocument.CompilationUnit.GlobalNode;
-        // TODO: ^ this is bad, node and scope is murky here it feels awkard todo fix it (cuz of the GlobalNode stuff)
-
-        var nodeCountMaxAmountToTake = definitionNodeCount; // the defined/declared nodes
-
-        if (nodeCountMaxAmountToTake > 250)
+        foreach (var node in javaScriptDocument.CompilationUnit.GlobalNode.GetScope().BodyList)
         {
-            nodeCountMaxAmountToTake = 250;
+            completionCache.Nodes.Add(node);
         }
 
-        /*
-        - [x] fix the autocomplete final element when scroll not work vs arrowdown
-        - [ ] Something like flat list of [(index,len,node), ...] then binary search
-	        - [ ] store the amount of menu options that fit in the slice, and then just swap their content each time a slice is requested.
-        - [ ] pick something?
-        - [ ] The includes are gonna be just another node that brings the entirety of the single file ast of that file into the current one through an include node or something or like flattens the file ast into the global copy paste all the nodes
-         */
-
-        if (_completionItemArray is not null && _completionItemArray_nodeBasedOn == result_node)
-        {
-            //if (_completionItemArray.Length > 0)
-            //{
-            //    _completionItemArray[0] = new TextDocumentCompletionItem()
-            //    {
-            //        label = $"it was reused",
-            //        kind = (int)CompletionItemKind.Text
-            //    };
-            //}
-
-            // TODO: Consider not making a flat array but instead traversing the nodes themselves as a means of doing an autocomplete menu.
-        }
-        else
-        {
-            _completionItemArray_nodeBasedOn = result_node;
-
-            // +1 so I can put a message at the 0th menu option
-            var completionItemArray = new TextDocumentCompletionItem[nodeCountMaxAmountToTake + 1];
-            completionItemArray[0] = new TextDocumentCompletionItem
-            {
-                label = $"('ctrl+r' to refresh) {nodeCountMaxAmountToTake} of {definitionNodeCount}",
-                kind = (int)CompletionItemKind.Text
-            };
-
-            int totalTaken = 0;
-
-            ref var targetScope = ref result_node.GetScope();
-
-            for (; totalTaken < nodeCountMaxAmountToTake;)
-            {
-                for (int i = 0; i < targetScope.BodyList.Count; i++)
-                {
-                    var node = targetScope.BodyList[i];
-                        
-                    if (totalTaken < nodeCountMaxAmountToTake)
-                    {
-                        TextDocumentCompletionItem textDocumentCompletionItem;
-                        if (node.SyntaxKind == SyntaxKind.ClassDeclarationNode)
-                        {
-                            textDocumentCompletionItem = new TextDocumentCompletionItem
-                            {
-                                label = $"(class) {node.GetIdentifierHash()}",
-                                kind = (int)CompletionItemKind.Text
-                            };
-                        }
-                        else if (node.SyntaxKind == SyntaxKind.FunctionDeclarationNode)
-                        {
-                            textDocumentCompletionItem = new TextDocumentCompletionItem
-                            {
-                                label = $"{node.GetIdentifierHash()}(?)...",
-                                kind = (int)CompletionItemKind.Text
-                            };
-                        }
-                        else if (node.SyntaxKind == SyntaxKind.VariableDeclarationNode)
-                        {
-                            textDocumentCompletionItem = new TextDocumentCompletionItem
-                            {
-                                label = $"(id) {node.GetIdentifierHash()}",
-                                kind = (int)CompletionItemKind.Text
-                            };
-                        }
-                        else
-                        {
-                            continue;
-                        }
-                        // +1 so I can put a message at the 0th menu option
-                        completionItemArray[((totalTaken++) + 1)] = textDocumentCompletionItem;
-                    }
-                }
-
-                if (totalTaken < nodeCountMaxAmountToTake && targetScope.ParentScopeProvider is not null)
-                {
-                    targetScope = ref targetScope.ParentScopeProvider.GetScope();
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            _completionItemArray = completionItemArray;
-            _completionItemArray_sliceFiltered = _completionItemArray;
-        }
-
-        var textDocumentCompletionResponseResult = new TextDocumentCompletionResponseResult()
-        {
-            isIncomplete = false,
-            items = Array.Empty<TextDocumentCompletionItem>(),
-            itemsStart = 0,
-            itemsEnd = 0,
-            totalLength = _completionItemArray.Length,
-        };
-
-        var textDocumentCompletionResponse = new TextDocumentCompletionResponse(completionRequest.id, textDocumentCompletionResponseResult);
-        Console.Out.WriteLine(Program.MAIN_encodeMessageObject(textDocumentCompletionResponse));
-
-        return null;
+        return completionCache;
     }
 
     public static Message DeserializeContent_Hover(TextDocumentHoverRequest? hoverRequest)
