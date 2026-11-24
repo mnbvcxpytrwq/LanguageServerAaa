@@ -621,7 +621,7 @@ internal static class Lsp
         return null;
     }
 
-    public static CompletionCache DeserializeContent_Completion(int positionIndex)
+    public static List<string> DeserializeContent_Completion(int positionIndex)
     {
         if (_javaScriptWorkspace.MostRecentlyOpenedFilePath is null)
             return null;
@@ -636,7 +636,14 @@ internal static class Lsp
         var args = new RecursiveSearch_Args(javaScriptDocument, positionIndex, _inclusiveFinalNodeToConsiderAtEachDepth, _returnStack);
         completionCache.RecursiveSearch(ref args);
 
-        return completionCache;
+        List<string> nodes = new();
+
+        foreach (var nodeKvp in completionCache._lexicalScope)
+        {
+            nodes.Add(nodeKvp.Key.ToString());
+        }
+
+        return nodes;
     }
 
     public static Message DeserializeContent_Hover(TextDocumentHoverRequest? hoverRequest)
