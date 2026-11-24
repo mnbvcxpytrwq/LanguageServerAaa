@@ -9,6 +9,9 @@ public struct ScopeUndoEntryWithPosition
     public SyntaxNodeWithPosition PreviousNode; // Null if ExistedBefore is false
 }
 
+/// <summary>
+/// TODO: Keep this alive at all times and each time you get a request for a position you traverse either forwards or backwards from the current
+/// </summary>
 public class CompletionCache
 {
     // The Undo Stack. It tracks what needs to be restored when a scope exits.
