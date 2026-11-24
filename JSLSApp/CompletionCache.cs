@@ -1,5 +1,7 @@
 ﻿using JSLSApp.LspTypes;
 using JSLSApp.Syntax;
+using System.Data.Common;
+using System.Xml.Linq;
 
 namespace JSLSApp;
 
@@ -13,12 +15,8 @@ public class CompletionCache
     public GlobalNode _globalNode = null!;
     public Dictionary<int, SyntaxNode> _lexicalScope = null!;
 
-    public void OpenScope(SyntaxNode scopeProviderNode, Position position)
+    public void OpenScope(SyntaxNode scopeProviderNode)
     {
-        ref var scope = ref scopeProviderNode.GetScope();
-        scope.SetStart(position);
-        scope.ParentScopeProvider = _currentScopeProvider;
-        scope.BodyList = new();
         _currentScopeProvider = scopeProviderNode;
 
         // Push a new bucket to track changes for this specific scope level
@@ -61,8 +59,34 @@ public class CompletionCache
         }
     }
 
+    public void DeclareVariable(int identifierHash, SyntaxNode node)
+    {
+        // 1. Record the current state before we overwrite/shadow anything
+        var entry = new ScopeUndoEntry { IdentifierHash = identifierHash };
+
+        if (_lexicalScope.TryGetValue(identifierHash, out var oldNode))
+        {
+            entry.ExistedBefore = true;
+            entry.PreviousNode = oldNode; // Capture the shadowed node
+        }
+        else
+        {
+            entry.ExistedBefore = false;
+        }
+
+        // Log this change to the current scope's undo list
+        if (_undoStack.Count > 0)
+        {
+            _undoStack.Peek().Add(entry);
+        }
+
+        // 2. Perform the actual declaration/shadowing
+        _lexicalScope[identifierHash] = node;
+    }
+
     public void RecursiveSearch(ref RecursiveSearch_Args args)
     {
+        OpenScope(args.ScopeProvider);
         ref var scope = ref args.ScopeProvider.GetScope();
         var i = 0;
 
@@ -73,6 +97,14 @@ public class CompletionCache
             for (; i < scope.BodyList.Count; i++)
             {
                 SyntaxNode? child_node = scope.BodyList[i];
+                switch (child_node.SyntaxKind)
+                {
+                    case SyntaxKind.ClassDeclarationNode:
+                    case SyntaxKind.VariableDeclarationNode:
+                    case SyntaxKind.FunctionDeclarationNode:
+                        DeclareVariable(child_node.GetIdentifierHash(), child_node);
+                        break;
+                }
                 args.CurrentIndexPosition += child_node.DistanceFromPreviousNode;
 
                 if (args.TargetIndexPosition >= args.CurrentIndexPosition && args.TargetIndexPosition <= args.CurrentIndexPosition + child_node.Length)
@@ -90,6 +122,7 @@ public class CompletionCache
                     {
                         args.ReturnStack.Push((args.ScopeProvider, i + 1, false));
                         args.ScopeProvider = child_node;
+                        OpenScope(args.ScopeProvider);
                         scope = ref args.ScopeProvider.GetScope();
                         i = 0;
                         descended = true;
