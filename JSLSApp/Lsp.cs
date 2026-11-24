@@ -621,6 +621,9 @@ internal static class Lsp
         return null;
     }
 
+    public static SyntaxNode? _previousCompletionResult_currentScopeProvider = null;
+    public static List<string> _previousCompletionResult_nodeStrings = new();
+
     public static List<string> DeserializeContent_Completion(int positionIndex)
     {
         if (_javaScriptWorkspace.MostRecentlyOpenedFilePath is null)
@@ -636,14 +639,21 @@ internal static class Lsp
         var args = new RecursiveSearch_Args(javaScriptDocument, positionIndex, _inclusiveFinalNodeToConsiderAtEachDepth, _returnStack);
         completionCache.RecursiveSearch(ref args);
 
-        List<string> nodes = new();
+        if (_previousCompletionResult_currentScopeProvider == completionCache._currentScopeProvider)
+        {
+            return _previousCompletionResult_nodeStrings;
+        }
+
+        _previousCompletionResult_currentScopeProvider = completionCache._currentScopeProvider;
+
+        _previousCompletionResult_nodeStrings = new();
 
         foreach (var nodeKvp in completionCache._lexicalScope)
         {
-            nodes.Add(SyntaxHelper.GetIdentifierText(nodeKvp.Value, args.Chars));
+            _previousCompletionResult_nodeStrings.Add(SyntaxHelper.GetIdentifierText(nodeKvp.Value, args.Chars));
         }
 
-        return nodes;
+        return _previousCompletionResult_nodeStrings;
     }
 
     public static Message DeserializeContent_Hover(TextDocumentHoverRequest? hoverRequest)
