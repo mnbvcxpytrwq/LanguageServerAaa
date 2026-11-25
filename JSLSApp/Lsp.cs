@@ -647,7 +647,7 @@ internal static class Lsp
 
         var nodeStrings = new List<string>();
 
-        foreach (var nodeKvp in completionCache._lexicalScope)
+        foreach (var nodeKvp in completionCache._foundNearestEncompassingScope_Remember)
         {
             nodeStrings.Add(SyntaxHelper.GetIdentifierText(nodeKvp.Value, args.Chars));
         }

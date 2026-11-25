@@ -21,6 +21,9 @@ public class CompletionCache
     public ref Scope _currentScope => ref _currentScopeProvider.GetScope();
     public GlobalNode _globalNode = null!;
     public Dictionary<int, SyntaxNodeWithPosition> _lexicalScope = new();
+    public bool FoundNearestEncompassingScope { get; set; }
+    public Dictionary<int, SyntaxNodeWithPosition> _foundNearestEncompassingScope_Remember = new();
+    public bool IsSideBranch { get; set; }
 
     public void OpenScope(SyntaxNode scopeProviderNode)
     {
@@ -89,15 +92,24 @@ public class CompletionCache
 
         // 2. Perform the actual declaration/shadowing
         _lexicalScope[identifierHash] = node;
+
+        if (FoundNearestEncompassingScope && !IsSideBranch)
+        {
+            // flag side branches so you don't take them.
+            if (!_foundNearestEncompassingScope_Remember.TryGetValue(identifierHash, out _))
+            {
+                _foundNearestEncompassingScope_Remember[identifierHash] = node;
+            }
+        }
     }
 
     public void RecursiveSearch(ref RecursiveSearch_Args args)
     {
+        FoundNearestEncompassingScope = false;
+
         OpenScope(args.ScopeProvider);
         ref var scope = ref args.ScopeProvider.GetScope();
         var i = 0;
-
-        //bool flagFinalization = false;
 
         while (true)
         {
@@ -125,20 +137,29 @@ public class CompletionCache
                 }
                 else if (args.TargetIndexPosition < args.CurrentIndexPosition)
                 {
-                    if (i >= scope.BodyList.Count)
+                    if (!FoundNearestEncompassingScope)
                     {
-                        return;
+                        FoundNearestEncompassingScope = true;
+                        _foundNearestEncompassingScope_Remember = new(_lexicalScope);
                     }
-                    else
+                    if (child_node.IsScopeProvider)
                     {
-                        continue;
+                        args.ReturnStack.Push((args.ScopeProvider, i + 1, IsSideBranch));
+                        IsSideBranch = true;
+                        args.ScopeProvider = child_node;
+                        OpenScope(args.ScopeProvider);
+                        scope = ref args.ScopeProvider.GetScope();
+                        i = 0;
+                        descended = true;
+                        break;
                     }
+                    continue;
                 }
                 else if (args.TargetIndexPosition > args.CurrentIndexPosition)
                 {
                     if (child_node.IsScopeProvider)
                     {
-                        args.ReturnStack.Push((args.ScopeProvider, i + 1, false));
+                        args.ReturnStack.Push((args.ScopeProvider, i + 1, IsSideBranch));
                         args.ScopeProvider = child_node;
                         OpenScope(args.ScopeProvider);
                         scope = ref args.ScopeProvider.GetScope();
@@ -156,6 +177,9 @@ public class CompletionCache
                     CloseScope();
                     var parentContext = args.ReturnStack.Pop();
                     args.ScopeProvider = parentContext.ScopeProvider;
+                    // in this function 'IsAtAnAfter' signifies what the IsSideBranch value was prior to changing scopeProvider.
+                    // TODO: Probably change things so you don't use the variable named 'IsAtAnAfter' to do this.
+                    IsSideBranch = parentContext.IsAtAnAfter;
                     scope = ref args.ScopeProvider.GetScope();
                     i = parentContext.ChildIndexOfScopeProviderAmongItsSiblings;
                 }
