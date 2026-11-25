@@ -179,6 +179,12 @@ public class CompletionCache
                 if (args.ReturnStack.Count > 0)
                 {
                     args.CurrentIndexPosition += scope.DistanceFromPreviousNode_TheLastOnePriorToScopeEnding;
+                    if (!FoundNearestEncompassingScope && args.CurrentIndexPosition > args.TargetIndexPosition)
+                    {
+                        FoundNearestEncompassingScope = true;
+                        _foundNearestEncompassingScope_Remember = new(_lexicalScope);
+                        _currentScopeProvider_REMEMBER = _currentScopeProvider;
+                    }
                     CloseScope();
                     var parentContext = args.ReturnStack.Pop();
                     args.ScopeProvider = parentContext.ScopeProvider;
