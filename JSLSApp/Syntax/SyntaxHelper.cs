@@ -93,6 +93,7 @@ internal static class SyntaxHelper
                         args.ReturnStack.Push((args.ScopeProvider, i + 1, false));
                         args.ScopeProvider = child_node;
                         scope = ref args.ScopeProvider.GetScope();
+                        args.CurrentIndexPosition += scope.DistanceFromPreviousNode_TheOnePriorToTheScope;
                         i = 0;
                         descended = true;
                         break;
@@ -104,6 +105,7 @@ internal static class SyntaxHelper
             {
                 if (args.ReturnStack.Count > 0)
                 {
+                    args.CurrentIndexPosition += scope.DistanceFromPreviousNode_TheLastOnePriorToScopeEnding;
                     var parentContext = args.ReturnStack.Pop();
                     args.ScopeProvider = parentContext.ScopeProvider;
                     scope = ref args.ScopeProvider.GetScope();
@@ -168,6 +170,7 @@ internal static class SyntaxHelper
                         // 2. Descend into the child scope context
                         scopeProvider = child_node;
                         scope = ref scopeProvider.GetScope();
+                        args.CurrentIndexPosition += scope.DistanceFromPreviousNode_TheOnePriorToTheScope;
 
                         // 3. Reset state variables for the nested scope
                         i = 0;
@@ -207,6 +210,8 @@ internal static class SyntaxHelper
             // If the current scope is fully exhausted and no After node was assigned, pop back up
             if (args.ReturnStack.Count > 0)
             {
+                args.CurrentIndexPosition += scope.DistanceFromPreviousNode_TheLastOnePriorToScopeEnding;
+
                 var parentContext = args.ReturnStack.Pop();
 
                 //// Re-inflate the parent loop's state

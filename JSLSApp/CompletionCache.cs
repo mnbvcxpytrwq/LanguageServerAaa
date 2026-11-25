@@ -149,6 +149,7 @@ public class CompletionCache
                         args.ScopeProvider = child_node;
                         OpenScope(args.ScopeProvider);
                         scope = ref args.ScopeProvider.GetScope();
+                        args.CurrentIndexPosition += scope.DistanceFromPreviousNode_TheOnePriorToTheScope;
                         i = 0;
                         descended = true;
                         break;
@@ -163,6 +164,7 @@ public class CompletionCache
                         args.ScopeProvider = child_node;
                         OpenScope(args.ScopeProvider);
                         scope = ref args.ScopeProvider.GetScope();
+                        args.CurrentIndexPosition += scope.DistanceFromPreviousNode_TheOnePriorToTheScope;
                         i = 0;
                         descended = true;
                         break;
@@ -174,6 +176,7 @@ public class CompletionCache
             {
                 if (args.ReturnStack.Count > 0)
                 {
+                    args.CurrentIndexPosition += scope.DistanceFromPreviousNode_TheLastOnePriorToScopeEnding;
                     CloseScope();
                     var parentContext = args.ReturnStack.Pop();
                     args.ScopeProvider = parentContext.ScopeProvider;
