@@ -134,7 +134,13 @@ public class CompletionCache
                 if (args.TargetIndexPosition >= args.CurrentIndexPosition && args.TargetIndexPosition <= args.CurrentIndexPosition + child_node.Length)
                 {
                     args.TargetNode = child_node;
-                    return;
+                    if (!FoundNearestEncompassingScope)
+                    {
+                        FoundNearestEncompassingScope = true;
+                        _foundNearestEncompassingScope_Remember = new(_lexicalScope);
+                        _currentScopeProvider_REMEMBER = _currentScopeProvider;
+                    }
+                    continue;
                 }
                 else if (args.TargetIndexPosition < args.CurrentIndexPosition)
                 {
