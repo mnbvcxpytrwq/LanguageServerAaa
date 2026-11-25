@@ -638,12 +638,12 @@ internal static class Lsp
         var args = new RecursiveSearch_Args(javaScriptDocument, positionIndex, _inclusiveFinalNodeToConsiderAtEachDepth, _returnStack);
         completionCache.RecursiveSearch(ref args);
 
-        if (_previousCompletionResult_currentScopeProvider == completionCache._currentScopeProvider)
+        if (_previousCompletionResult_currentScopeProvider == completionCache._currentScopeProvider_REMEMBER)
         {
             return null;
         }
 
-        _previousCompletionResult_currentScopeProvider = completionCache._currentScopeProvider;
+        _previousCompletionResult_currentScopeProvider = completionCache._currentScopeProvider_REMEMBER;
 
         var nodeStrings = new List<string>();
 

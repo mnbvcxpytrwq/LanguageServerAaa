@@ -23,6 +23,7 @@ public class CompletionCache
     public Dictionary<int, SyntaxNodeWithPosition> _lexicalScope = new();
     public bool FoundNearestEncompassingScope { get; set; }
     public Dictionary<int, SyntaxNodeWithPosition> _foundNearestEncompassingScope_Remember = new();
+    public SyntaxNode _currentScopeProvider_REMEMBER { get; set; }
     public bool IsSideBranch { get; set; }
 
     public void OpenScope(SyntaxNode scopeProviderNode)
@@ -141,6 +142,7 @@ public class CompletionCache
                     {
                         FoundNearestEncompassingScope = true;
                         _foundNearestEncompassingScope_Remember = new(_lexicalScope);
+                        _currentScopeProvider_REMEMBER = _currentScopeProvider;
                     }
                     if (child_node.IsScopeProvider)
                     {
