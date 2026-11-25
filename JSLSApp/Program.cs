@@ -2,7 +2,6 @@
  Do not forget to re-publish when applicable
  */
 
-using JSLSApp.LspTypes;
 using System.Buffers;
 using System.Text;
 using System.Text.Json;
@@ -117,10 +116,6 @@ public class Program
                     {
                         goto noParameters;
                     }
-                    if (current_message_kind == MessageKind_custom_autocomplete)
-                    {
-                        goto noParameters;
-                    }
                 }
                 else
                 {
@@ -224,10 +219,13 @@ public class Program
             }
             else if (current_message_kind == MessageKind_custom_autocomplete)
             {
-                var nodes = Lsp.DeserializeContent_Completion(0);
-                if (nodes is not null)
+                if (int.TryParse(str, out var positionIndex))
                 {
-                    server.SendAsync(clientGuid, JsonSerializer.Serialize(nodes));
+                    var nodes = Lsp.DeserializeContent_Completion(positionIndex);
+                    if (nodes is not null)
+                    {
+                        server.SendAsync(clientGuid, JsonSerializer.Serialize(nodes));
+                    }
                 }
             }
 

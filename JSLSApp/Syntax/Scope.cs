@@ -1,6 +1,4 @@
-﻿using JSLSApp.LspTypes;
-
-namespace JSLSApp.Syntax;
+﻿namespace JSLSApp.Syntax;
 
 public struct Scope
 {
@@ -11,39 +9,27 @@ public struct Scope
     /// TODO: Consider making a function that adds a node rather than invoking the List type's 'Add' function so that the above described logic can be encapsulated.
     /// </summary>
     public List<SyntaxNode> BodyList { get; set; }
-    public Position Start { get; private set; }
-    public Position End { get; private set; }
     public bool IsStarted { get; set; }
     public bool IsEnded { get; set; }
     public int CountOfChildrenThatAreDefinitions { get; set; }
+    public int DistanceFromPreviousNode_TheOnePriorToTheScope { get; set; }
+    public int DistanceFromPreviousNode_TheLastOnePriorToScopeEnding { get; set; }
 
     public SyntaxNode? ParentScopeProvider { get; set; }
 
-    public void SetStart(Position start)
+    public void SetStart(int distanceFromPreviousNode)
     {
-        Start = start;
+        DistanceFromPreviousNode_TheOnePriorToTheScope = distanceFromPreviousNode;
         IsStarted = true;
     }
 
-    public void SetEnd(Position end)
+    public void SetEnd(int distanceFromPreviousNode)
     {
-        End = end;
+        DistanceFromPreviousNode_TheLastOnePriorToScopeEnding = distanceFromPreviousNode;
         IsEnded = true;
     }
 
-    [Obsolete]
-    public BodyKind GetBodyKind()
-    {
-        return Type;
-    }
-
-    [Obsolete]
-    public List<SyntaxNode> GetBodyList(List<SyntaxNode> globalBodyList)
-    {
-        return BodyList;
-    }
-
-    public bool AttemptEndScope(Position position, SyntaxKind syntaxKind)
+    public bool AttemptEndScope(int distanceFromPreviousNode, SyntaxKind syntaxKind)
     {
         if (!IsEnded)
         {
@@ -52,35 +38,35 @@ public struct Scope
                 case BodyKind.ClassBody:
                     if (syntaxKind == SyntaxKind.CloseBraceToken)
                     {
-                        SetEnd(position);
+                        SetEnd(distanceFromPreviousNode);
                         return true;
                     }
                     break;
                 case BodyKind.FunctionBody:
                     if (syntaxKind == SyntaxKind.CloseBraceToken)
                     {
-                        SetEnd(position);
+                        SetEnd(distanceFromPreviousNode);
                         return true;
                     }
                     break;
                 case BodyKind.IfStatementBody:
                     if (syntaxKind == SyntaxKind.CloseBraceToken)
                     {
-                        SetEnd(position);
+                        SetEnd(distanceFromPreviousNode);
                         return true;
                     }
                     break;
                 case BodyKind.ForStatementBody:
                     if (syntaxKind == SyntaxKind.CloseBraceToken)
                     {
-                        SetEnd(position);
+                        SetEnd(distanceFromPreviousNode);
                         return true;
                     }
                     break;
                 case BodyKind.BlockBody:
                     if (syntaxKind == SyntaxKind.CloseBraceToken)
                     {
-                        SetEnd(position);
+                        SetEnd(distanceFromPreviousNode);
                         return true;
                     }
                     break;

@@ -158,7 +158,7 @@ public class JavaScriptParser
         Program._activeParser = this;
 
         _globalNode = new GlobalNode(0, 0);
-        OpenScope(_globalNode, new Position(0, 0));
+        OpenScope(_globalNode, 0);
         _lexicalScope = new();
 
         _syntaxHighlightByteList = new byte[_doc.Count];
@@ -210,8 +210,10 @@ public class JavaScriptParser
                     }
                     break;
                 case SyntaxKind.CloseBraceToken:
-                    if (_currentScope.AttemptEndScope(token.Position, token.SyntaxKind) && _currentScope.ParentScopeProvider is not null)
+                    var distanceFromPreviousNode = (_pos - 1/*tokenLength*/) - _posOfPreviousNode;
+                    if (_currentScope.AttemptEndScope(distanceFromPreviousNode, token.SyntaxKind) && _currentScope.ParentScopeProvider is not null)
                     {
+                        _posOfPreviousNode = (_pos - 1/*tokenLength*/);
                         CloseScope();
                     }
                     break;
@@ -252,11 +254,13 @@ public class JavaScriptParser
         Program._activeParser = null;
         return new JavaScriptCompilationUnit(_functionDefinitionStartPositionList, _globalNode, _lexicalScope);
     }
-
-    private void OpenScope(SyntaxNode scopeProviderNode, Position position)
+    
+    private void OpenScope(SyntaxNode scopeProviderNode, int tokenLength)
     {
         ref var scope = ref scopeProviderNode.GetScope();
-        scope.SetStart(position);
+        var distanceFromPreviousNode = (_pos - tokenLength) - _posOfPreviousNode;
+        scope.SetStart(distanceFromPreviousNode);
+        _posOfPreviousNode = (_pos - tokenLength);
         scope.ParentScopeProvider = _currentScopeProvider;
         scope.BodyList = new();
         _currentScopeProvider = scopeProviderNode;
@@ -422,7 +426,7 @@ public class JavaScriptParser
         var ifStatementNode = new IfStatementNode((_pos - token.Length) - _posOfPreviousNode, 0);
         _posOfPreviousNode = _pos - token.Length;
         _currentScope.BodyList.Add(ifStatementNode);
-        OpenScope(ifStatementNode, openBraceToken.Position);
+        OpenScope(ifStatementNode, 1);
     }
 
     public void ParseElseStatement()
@@ -435,7 +439,7 @@ public class JavaScriptParser
         var ifStatementNode = new IfStatementNode((_pos - token.Length) - _posOfPreviousNode, 0);
         _posOfPreviousNode = _pos - token.Length;
         _currentScope.BodyList.Add(ifStatementNode);
-        OpenScope(ifStatementNode, openBraceToken.Position);
+        OpenScope(ifStatementNode, 1);
     }
 
     public void ParseForStatement()
@@ -477,7 +481,7 @@ public class JavaScriptParser
             var forStatementNode = new ForStatementNode((_pos - token.Length) - _posOfPreviousNode, 0);
             _posOfPreviousNode = _pos - token.Length;
             _currentScope.BodyList.Add(forStatementNode);
-            OpenScope(forStatementNode, openBraceToken.Position);
+            OpenScope(forStatementNode, 1);
             CopyPendingDefinitionsToCurrentScope_DOES_NOT_CLEAR_PENDING();
         }
 
@@ -489,7 +493,7 @@ public class JavaScriptParser
         var blockNode = new BlockNode((_pos - openBraceToken.Length) - _posOfPreviousNode, 0);
         _posOfPreviousNode = _pos - openBraceToken.Length;
         _currentScope.BodyList.Add(blockNode);
-        OpenScope(blockNode, openBraceToken.Position);
+        OpenScope(blockNode, 1);
     }
 
     public void ParseFunctionDefinitionNode(SyntaxToken identifierToken, bool identifierTokenExists)
@@ -589,7 +593,7 @@ public class JavaScriptParser
             return;
         _ = ConsumePeekToken();
         var openBraceToken = token;
-        OpenScope(functionDeclarationNode, openBraceToken.Position);
+        OpenScope(functionDeclarationNode, 1);
         CopyPendingDefinitionsToCurrentScope_DOES_NOT_CLEAR_PENDING();
     }
 
@@ -621,7 +625,7 @@ public class JavaScriptParser
             return;
         _ = ConsumePeekToken();
         var openBraceToken = token;
-        OpenScope(classDeclarationNode, openBraceToken.Position);
+        OpenScope(classDeclarationNode, 1);
     }
 
     public void ParseConstructorDefinitionNode(SyntaxToken constructorToken)

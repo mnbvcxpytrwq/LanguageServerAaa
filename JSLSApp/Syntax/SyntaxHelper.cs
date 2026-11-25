@@ -27,8 +27,8 @@ internal static class SyntaxHelper
 
             ref var childScope = ref child_node.GetScope();
 
-            if (childScope.Type == BodyKind.EXTERNAL_FunctionBody ||
-                (childScope.Start.line > indexLine || childScope.End.line < indexLine))
+            if (childScope.Type == BodyKind.EXTERNAL_FunctionBody/* ||
+                (childScope.Start.line > indexLine || childScope.End.line < indexLine)*/)
             {
                 continue;
             }
