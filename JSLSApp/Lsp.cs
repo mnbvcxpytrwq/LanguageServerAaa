@@ -485,6 +485,7 @@ internal static class Lsp
                         while (targetScopeProvider is not null)
                         {
                             ref var scope = ref targetScopeProvider.GetScope();
+                            args.CurrentIndexPosition += scope.DistanceFromPreviousNode_TheOnePriorToTheScope;
                             for (; i < scope.BodyList.Count; i++)
                             {
                                 var childNode = scope.BodyList[i];
@@ -535,6 +536,7 @@ internal static class Lsp
                             {
                                 if (args.ReturnStack.Count > 0)
                                 {
+                                    args.CurrentIndexPosition += scope.DistanceFromPreviousNode_TheLastOnePriorToScopeEnding;
                                     var returnEntry = args.ReturnStack.Pop();
                                     targetScopeProvider = returnEntry.ScopeProvider;
                                     i = returnEntry.ChildIndexOfScopeProviderAmongItsSiblings + 1;
